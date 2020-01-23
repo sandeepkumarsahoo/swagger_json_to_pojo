@@ -1,0 +1,65 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.0.BUILD-SNAPSHOT'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'org.detoeuf.swagger-codegen' version '1.7.4'
+	id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+apply plugin: 'org.detoeuf.swagger-codegen'
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/snapshot' }
+}
+
+swagger {
+	inputSpec = file('src/main/resources/petstore.json')
+	outputDir = file('build/swagger')
+	lang = 'java'
+
+	additionalProperties = [
+			'apiPackage' : 'test.client.api',
+			'dateLibrary' : 'java8',
+			'hideGenerationTimestamp': 'true',
+			'invokerPackage' : 'test.client',
+			'library' : 'resttemplate',
+			'modelNameSuffix' : 'Dto',
+			'modelPackage' : 'test.client.model'
+	]
+	importMappings = [
+			'Dog': 'io.swagger.petstore.client.model.Dog'
+	]
+}
+
+sourceSets {
+	swagger {
+		java {
+			srcDir file("${project.buildDir.path}/swagger/src/main/java")
+		}
+	}
+}
+
+classes.dependsOn('swagger')
+
+ext {
+	spring_boot_version = '1.5.6.RELEASE'
+	jackson_version = '2.4.2'
+
+
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
